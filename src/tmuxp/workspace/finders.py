@@ -128,6 +128,14 @@ def get_workspace_dir() -> str:
     return path
 
 
+def _dirs_and_ext(
+    workspace_base_dir: str, extensions: list[str] = VALID_WORKSPACE_DIR_FILE_EXTENSIONS
+):
+    for dir, _, _ in os.walk(workspace_base_dir, followlinks=True):
+        for extension in extensions:
+            yield dir, extension
+
+
 def find_workspace_file(
     workspace_file: StrPath,
     workspace_dir: t.Optional[StrPath] = None,
@@ -184,8 +192,8 @@ def find_workspace_file(
             candidates = [
                 x
                 for x in [
-                    f"{join(workspace_dir, workspace_file)}{ext}"
-                    for ext in VALID_WORKSPACE_DIR_FILE_EXTENSIONS
+                    f"{join(dir, workspace_file)}{ext}"
+                    for dir, ext in _dirs_and_ext(workspace_dir)
                 ]
                 if exists(x)
             ]
