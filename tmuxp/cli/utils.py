@@ -131,6 +131,14 @@ def get_abs_path(config):
     return config
 
 
+def _dirs_and_ext(
+    workspace_base_dir: str, extensions: list[str] = VALID_CONFIG_DIR_FILE_EXTENSIONS
+):
+    for dir, _, _ in os.walk(workspace_base_dir, followlinks=True):
+        for extension in extensions:
+            yield dir, extension
+
+
 def scan_config(config, config_dir=None):
     """
     Return the real config path or raise an exception.
@@ -188,8 +196,8 @@ def scan_config(config, config_dir=None):
             candidates = [
                 x
                 for x in [
-                    f"{join(config_dir, config)}{ext}"
-                    for ext in VALID_CONFIG_DIR_FILE_EXTENSIONS
+                    f"{join(dir, config)}{ext}"
+                    for dir, ext in _dirs_and_ext(config_dir)
                 ]
                 if exists(x)
             ]
